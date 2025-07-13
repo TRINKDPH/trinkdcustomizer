@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRINK'D - Build Your Bracelet</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    header img {
+      height: 200px;
+    }
+
+    .builder-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .bracelet {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 50px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+
+    .bracelet-item {
+      position: relative;
+      margin-right: 2px;
+    }
+
+    .bracelet-item img {
+      width: 50px;
+      height: 35px;
+      border: 1px solid #999;
+      background-color: #fff;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .bracelet-item:hover .remove-btn {
+      display: flex;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: #000;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #444;
+    }
+
+    .total {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .category {
+      margin-bottom: 30px;
+    }
+
+    .category h2 {
+      font-size: 1.2rem;
+      text-align: center;
+      color: #333;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .charm-menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .charm {
+      width: 60px;
+      height: 40px;
+      border: 1px solid #999;
+      cursor: pointer;
+      object-fit: cover;
+      transition: transform 0.2s;
+    }
+
+    .charm:hover {
+      transform: scale(1.1);
+      border-color: #000;
+    }
+
+    .info-box {
+      margin-top: 40px;
+      background-color: #f8f8f8;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .info-box h3 {
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      color: #000;
+    }
+
+    .info-box p {
+      margin: 5px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    #braceletCodeBox {
+      text-align: center;
+      margin: 10px auto;
+      max-width: 600px;
+    }
+
+    #braceletCode {
+      padding: 10px;
+      background: #f1f1f1;
+      border: 1px dashed #aaa;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-top: 5px;
+      word-wrap: break-word;
+    }
+
+    #copyMsg {
+      color: green;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.imgur.com/gXun2ao.png" alt="TRINK'D Logo">
+    <p>Build Your Own Italian Charm Bracelet</p>
+  </header>
+
+  <div class="builder-container">
+    <div class="bracelet" id="bracelet"></div>
+
+    <div class="controls">
+      <button onclick="clearBracelet()">Clear Bracelet</button>
+      <button onclick="generateBraceletCode()">Copy Bracelet Code</button>
+      <div class="total">
+        Total: ₱<span id="totalPrice">0</span><br>
+        Charms: <span id="charmCount">0</span>
+      </div>
+    </div>
+
+    <div id="braceletCodeBox">
+      <strong>Copy your bracelet code and send it to us ♥ </strong>
+      <div id="braceletCode">...</div>
+      <div id="copyMsg"></div>
+    </div>
+
+    <div style="text-align: center; margin: 40px 0 10px;">
+      <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #d63384;">Choose your charms here: </h2>
+    </div>
+
+    <div class="category">
+      <h2>UNIVERSITIES</h2>
+      <div class="charm-menu">
+        <img src="https://i.imgur.com/9yLlUT5.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/VfJtQqj.png" class="charm" data-price="15" data-name="2" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/FzZlsGZ.png" class="charm" data-price="15" data-name="3" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/lOz9LfD.png" class="charm" data-price="15" data-name="4" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/iI7afEi.png" class="charm" data-price="15" data-name="5" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/a1VsnQT.png" class="charm" data-price="15" data-name="6" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/TRDvuvl.png" class="charm" data-price="15" data-name="7" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/GIz0oGg.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+      </div>
+    </div>
+
+    <div class="category">
+      <h2>TRENDY</h2>
+      <div class="charm-menu">
+        <img src="https://i.imgur.com/4T1FkXE.png" class="charm" data-price="15" data-name="9" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/4DSfSVh.png" class="charm" data-price="15" data-name="a" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/Ws7VEDQ.png" class="charm" data-price="15" data-name="b" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/0fzqxVY.png" class="charm" data-price="15" data-name="c" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/SSdXx0o.png" class="charm" data-price="15" data-name="d" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/EVd1itQ.png" class="charm" data-price="15" data-name="e" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/8VpWOWa.png" class="charm" data-price="15" data-name="f" onclick="addCharm(this)">
+      </div>
+    </div>
+
+    <div class="category">
+      <h2>BRANDS</h2>
+      <div class="charm-menu">
+        <img src="https://i.imgur.com/8Jog1wY.png" class="charm" data-price="15" data-name="g" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/WCCHfHK.png" class="charm" data-price="15" data-name="h" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/FIUC0E1.png" class="charm" data-price="15" data-name="i" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/wLPohCQ.png" class="charm" data-price="15" data-name="j" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/rkPKLK5.png" class="charm" data-price="15" data-name="k" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/9FWW7Lc.png" class="charm" data-price="15" data-name="L" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/qnpjKkU.png" class="charm" data-price="15" data-name="m" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/lgQlaG1.png" class="charm" data-price="15" data-name="n" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/qrp7RGw.png" class="charm" data-price="15" data-name="o" onclick="addCharm(this)">
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>Size Guide</h3>
+      <p><strong>S</strong> – 17 links</p>
+      <p><strong>M</strong> – 18 links</p>
+      <p><strong>L</strong> – 19 links</p>
+      <p><strong>XL</strong> – 20 links</p>
+    </div>
+  </div>
+
+  <script>
+    const bracelet = document.getElementById('bracelet');
+    const totalDisplay = document.getElementById('totalPrice');
+    const charmCountDisplay = document.getElementById('charmCount');
+    const codeDisplay = document.getElementById('braceletCode');
+    const copyMsg = document.getElementById('copyMsg');
+
+    let totalPrice = 0;
+
+    function addCharm(el) {
+      const price = parseInt(el.dataset.price);
+      const name = el.dataset.name || "CHARM";
+      const container = document.createElement('div');
+      container.className = 'bracelet-item';
+      container.dataset.name = name;
+
+      const img = document.createElement('img');
+      img.src = el.src;
+      img.dataset.price = price;
+      container.appendChild(img);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-btn';
+      removeBtn.textContent = '×';
+      removeBtn.onclick = function () {
+        removeCharm(container, price);
+      };
+
+      container.appendChild(removeBtn);
+      bracelet.appendChild(container);
+      totalPrice += price;
+      updateTotal();
+    }
+
+    function removeCharm(container, price) {
+      bracelet.removeChild(container);
+      totalPrice -= price;
+      updateTotal();
+    }
+
+    function clearBracelet() {
+      bracelet.innerHTML = '';
+      totalPrice = 0;
+      updateTotal();
+      codeDisplay.textContent = "(Your bracelet code will appear here)";
+      copyMsg.textContent = "";
+    }
+
+    function updateTotal() {
+      totalDisplay.textContent = totalPrice;
+      charmCountDisplay.textContent = bracelet.children.length;
+    }
+
+    function generateBraceletCode() {
+      const charms = bracelet.querySelectorAll('.bracelet-item');
+      if (charms.length === 0) {
+        codeDisplay.textContent = "No charms selected.";
+        copyMsg.textContent = "";
+        return;
+      }
+
+      let code = Array.from(charms).map(c => c.dataset.name).join('-');
+      codeDisplay.textContent = code;
+
+      navigator.clipboard.writeText(code).then(() => {
+        copyMsg.textContent = "✅ Copied! DM it to us.";
+      }).catch(() => {
+        copyMsg.textContent = "❌ Couldn’t copy. Please copy it manually.";
+      });
+    }
+  </script>
+</body>
+</html>
