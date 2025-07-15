@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<p style="text-align: center; color: grey; font-size: 0.8rem; margin-top: 10px;">
+  &copy; 2025 TRINK'D
+</p>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,12 +9,12 @@
   <title>TRINK'D - Build Your Bracelet</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #ffffff;
-      color: #000000;
-      padding: 20px;
-    }
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #e0e0e0; /* Light grey background */
+  color: #000000;
+  padding: 20px;
+}
 
     header {
       text-align: center;
@@ -42,16 +45,17 @@
 
     .bracelet-item {
       position: relative;
-      margin-right: 2px;
+      margin-right: -4px;
     }
 
     .bracelet-item img {
       width: 50px;
-      height: 35px;
-      border: 1px solid #999;
+      height: auto;
+      aspect-ratio: 2277 / 2077;
       background-color: #fff;
-      object-fit: cover;
+      object-fit: contain;
       cursor: pointer;
+      border: none;
     }
 
     .remove-btn {
@@ -122,7 +126,8 @@
 
     .charm {
       width: 60px;
-      height: 40px;
+      height: auto;
+      aspect-ratio: 2277 / 2077;
       border: 1px solid #999;
       cursor: pointer;
       object-fit: cover;
@@ -205,61 +210,96 @@
       <div id="copyMsg"></div>
     </div>
 
-    <div style="text-align: center; margin: 40px 0 10px;">
-      <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #d63384;">Choose your charms here: </h2>
+    <hr style="border: none; border-top: 2px dashed #aaa; margin: 40px auto 30px; width: 80%;">
+
+    <div style="text-align: center; margin-bottom: 10px;">
+      <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #000000;">Choose your charms here:</h2>
     </div>
 
     <div class="category">
       <h2>UNIVERSITIES</h2>
       <div class="charm-menu">
-        <img src="https://i.imgur.com/9yLlUT5.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/VfJtQqj.png" class="charm" data-price="15" data-name="2" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/FzZlsGZ.png" class="charm" data-price="15" data-name="3" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/lOz9LfD.png" class="charm" data-price="15" data-name="4" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/iI7afEi.png" class="charm" data-price="15" data-name="5" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/a1VsnQT.png" class="charm" data-price="15" data-name="6" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/TRDvuvl.png" class="charm" data-price="15" data-name="7" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/GIz0oGg.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/iUeroMn.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/Z9IOdBB.png" class="charm" data-price="15" data-name="2" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/npALRi6.png" class="charm" data-price="15" data-name="3" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/vhws3mv.png" class="charm" data-price="15" data-name="4" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/gb9smhU.png" class="charm" data-price="15" data-name="5" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/lkF6tFW.png" class="charm" data-price="15" data-name="6" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/53uNUaO.png" class="charm" data-price="15" data-name="7" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/E6Vt3Kl.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/3c2BenN.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/beQs2Mz.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/a5sUsLq.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/7uyVqxH.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/bmkzv7X.png" class="charm" data-price="15" data-name="8" onclick="addCharm(this)">
       </div>
-    </div>
-
-    <div class="category">
-      <h2>TRENDY</h2>
-      <div class="charm-menu">
-        <img src="https://i.imgur.com/4T1FkXE.png" class="charm" data-price="15" data-name="9" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/4DSfSVh.png" class="charm" data-price="15" data-name="a" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/Ws7VEDQ.png" class="charm" data-price="15" data-name="b" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/0fzqxVY.png" class="charm" data-price="15" data-name="c" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/SSdXx0o.png" class="charm" data-price="15" data-name="d" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/EVd1itQ.png" class="charm" data-price="15" data-name="e" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/8VpWOWa.png" class="charm" data-price="15" data-name="f" onclick="addCharm(this)">
-      </div>
-    </div>
-
-    <div class="category">
-      <h2>BRANDS</h2>
-      <div class="charm-menu">
-        <img src="https://i.imgur.com/8Jog1wY.png" class="charm" data-price="15" data-name="g" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/WCCHfHK.png" class="charm" data-price="15" data-name="h" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/FIUC0E1.png" class="charm" data-price="15" data-name="i" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/wLPohCQ.png" class="charm" data-price="15" data-name="j" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/rkPKLK5.png" class="charm" data-price="15" data-name="k" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/9FWW7Lc.png" class="charm" data-price="15" data-name="L" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/qnpjKkU.png" class="charm" data-price="15" data-name="m" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/lgQlaG1.png" class="charm" data-price="15" data-name="n" onclick="addCharm(this)">
-        <img src="https://i.imgur.com/qrp7RGw.png" class="charm" data-price="15" data-name="o" onclick="addCharm(this)">
-      </div>
-    </div>
-
-    <div class="info-box">
-      <h3>Size Guide</h3>
-      <p><strong>S</strong> – 17 links</p>
-      <p><strong>M</strong> – 18 links</p>
-      <p><strong>L</strong> – 19 links</p>
-      <p><strong>XL</strong> – 20 links</p>
     </div>
   </div>
-
+<div class="category">
+      <h2>TRENDY</h2>
+      <div class="charm-menu">
+        <img src="https://i.imgur.com/3hekSgc.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/JoFO7oW.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/6IkHnVO.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/KFSfWO5.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/h2gBnTY.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/sAZjrOC.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/l2bLTn4.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/Ap6xzJF.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/2paFUZw.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/Diz4LVX.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/XuMzWvd.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/wHKCUej.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/ESTTR9R.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/81obZjh.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/3A4GulT.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+           <img src="https://i.imgur.com/Yj4GQMT.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+           <img src="https://i.imgur.com/LcnLR7K.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+           <img src="https://i.imgur.com/8WmO15r.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+           <img src="https://i.imgur.com/qs7EcA3.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+           <img src="https://i.imgur.com/p5WZRST.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          <img src="https://i.imgur.com/1upenvS.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          <img src="https://i.imgur.com/fdF2mix.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          <img src="https://i.imgur.com/9PFIC9X.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          <img src="https://i.imgur.com/xCq5bbL.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          <img src="https://i.imgur.com/es96TVy.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+          </div>
+    </div>
+  </div>
+<div class="category">
+      <h2>BRANDS</h2>
+      <div class="charm-menu">
+        <img src="https://i.imgur.com/nYZVgpC.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+         <img src="https://i.imgur.com/ou4HmFk.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/PWNtCpf.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/kwd2JFz.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/OTHxeYN.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/XjrxgBr.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/nYZVgpC.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/6YVQ1fV.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/Gq80afV.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/ooqPd3H.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/07Ou6tk.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">
+        <img src="https://i.imgur.com/IotqO72.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">   
+        <img src="https://i.imgur.com/aWDnQ93.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/UZ4jXox.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/f4xkMks.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/95a4df2.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/HfFlB45.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/HjcwTkL.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/9fTTfBp.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/MmMX2ZN.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/FI9G9t7.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/c8sUOm9.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+        <img src="https://i.imgur.com/phXn411.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)">  
+          <img src="https://i.imgur.com/5cx9IG8.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/q9uOQSB.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/R6Im0SX.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/IMoQl1L.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/5dJLvoF.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/CQ3Lsva.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/dqOqXQP.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
+          <img src="https://i.imgur.com/8s9LWO2.png" class="charm" data-price="15" data-name="1" onclick="addCharm(this)"> 
   <script>
     const bracelet = document.getElementById('bracelet');
     const totalDisplay = document.getElementById('totalPrice');
@@ -333,3 +373,72 @@
   </script>
 </body>
 </html>
+   </div>
+    </div>
+  </div>
+<div style="text-align: center; margin-top: 30px;">
+  <!-- Buttons -->
+  <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+    <button onclick="toggleSizeGuide()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
+      📏 Size Guide
+    </button>
+    <button onclick="toggleFAQ()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
+      ❓ FAQs
+    </button>
+    <button onclick="toggleSocials()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
+      📲 Social Media
+    </button>
+  </div>
+
+  <!-- Size Guide Dropdown -->
+  <div id="sizeGuide" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
+    <p>S - 16 links</p>
+    <p>M - 17 links</p>
+    <p>L - 18 links</p>
+    <p>XL - 19 links</p>
+    <p>XXL - 20 links</p>
+  </div>
+
+  <!-- FAQ Dropdown -->
+  <div id="faqSection" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
+    <p><strong>Q: How many charms fit in one bracelet?</strong><br>A: Usually around 17-18 charms fit comfortably in a standard size.</p>
+    <p><strong>Q: How do I send you my bracelet?</strong><br>A: Click the copy bracelet code button after creating your piece and then DM it to us!</p>
+    <p><strong>Q: Do you offer custom images on charms?</strong><br>A: Yes! Message us for more info on personalized designs.</p>
+    <p><strong>Q: How long does it take to process and ship my order?</strong><br>A: Depends on the availability of the charms. For custom pieces and pre-orders, it may take 7-14 days. For ready-made orders, it may take 3-7 days depending on your location.</p>
+  </div>
+
+  <!-- Social Media Dropdown -->
+  <div id="socialSection" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
+    <p><strong>Instagram:</strong> @trinkd.ph</p
+      
+    <p><strong>TikTok:</strong> @trinkd.ph</p>
+    <p><strong>Email:</strong> trinkdph@gmail.com</p>
+  </div>
+</div>
+<script>
+  function toggleSection(sectionId) {
+    const allSections = ['sizeGuide', 'faqSection', 'socialSection'];
+
+    allSections.forEach(id => {
+      const el = document.getElementById(id);
+      if (id === sectionId) {
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+      } else {
+        el.style.display = 'none'; // Optional: close other dropdowns
+      }
+    });
+  }
+
+  function toggleSizeGuide() {
+    toggleSection('sizeGuide');
+  }
+
+  function toggleFAQ() {
+    toggleSection('faqSection');
+  }
+
+  function toggleSocials() {
+    toggleSection('socialSection');
+  }
+</script>
+
