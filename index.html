@@ -9,12 +9,12 @@
   <title>TRINK'D - Build Your Bracelet</title>
   <style>
     body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #e0e0e0; /* Light grey background */
-  color: #000000;
-  padding: 20px;
-}
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #e0e0e0;
+      color: #000000;
+      padding: 20px;
+    }
 
     header {
       text-align: center;
@@ -22,11 +22,11 @@
     }
 
     header img {
-  height: 200px;
-  width: 200px;
-  border-radius: 50%;
-  object-fit: cover;
-}
+      height: 200px;
+      width: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
 
     .builder-container {
       max-width: 1000px;
@@ -187,6 +187,17 @@
       font-size: 0.9rem;
       margin-top: 5px;
     }
+
+    /* Metal selection buttons */
+    .metal-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .metal-buttons button.active {
+      background-color: #444;
+      border: 2px solid #000;
+    }
   </style>
 </head>
 <body>
@@ -215,13 +226,22 @@
 
     <hr style="border: none; border-top: 2px dashed #aaa; margin: 40px auto 30px; width: 80%;">
 
+    <!-- Metal Selection -->
+    <div class="metal-buttons">
+      <h2 style="font-size: 1.2rem; text-transform: uppercase; color: #000000;">Choose Bracelet Base:</h2>
+      <button onclick="selectMetal('SILVER')" id="silverBtn">SILVER</button>
+      <button onclick="selectMetal('GOLD')" id="goldBtn">GOLD</button>
+    </div>
+
     <div style="text-align: center; margin-bottom: 10px;">
       <h2 style="font-size: 1.4rem; text-transform: uppercase; color: #000000;">Choose your charms here:</h2>
     </div>
-<div class="category">
-  <h2>PLAIN</h2>
-  <div class="charm-menu">
-    <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/71.webp" class="charm" data-price="10" data-name="71" onclick="addCharm(this)">
+
+    <!-- Category: Plain -->
+    <div class="category">
+      <h2>PLAIN</h2>
+      <div class="charm-menu">
+         <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/71.webp" class="charm" data-price="10" data-name="71" onclick="addCharm(this)">
     <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/72.webp" class="charm" data-price="35" data-name="72" onclick="addCharm(this)">
   </div>
 </div>
@@ -309,14 +329,29 @@
           <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/68.webp" class="charm" data-price="20" data-name="68" onclick="addCharm(this)"> 
           <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/69.webp" class="charm" data-price="20" data-name="69" onclick="addCharm(this)"> 
           <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/70.webp" class="charm" data-price="20" data-name="70" onclick="addCharm(this)"> 
+      </div>
+    </div>
+  </div>
+
   <script>
     const bracelet = document.getElementById('bracelet');
     const totalDisplay = document.getElementById('totalPrice');
     const charmCountDisplay = document.getElementById('charmCount');
     const codeDisplay = document.getElementById('braceletCode');
     const copyMsg = document.getElementById('copyMsg');
-
     let totalPrice = 0;
+    let selectedMetal = null;
+
+    function selectMetal(metal) {
+      selectedMetal = metal;
+      document.getElementById("silverBtn").classList.remove("active");
+      document.getElementById("goldBtn").classList.remove("active");
+      if (metal === "SILVER") {
+        document.getElementById("silverBtn").classList.add("active");
+      } else {
+        document.getElementById("goldBtn").classList.add("active");
+      }
+    }
 
     function addCharm(el) {
       const price = parseInt(el.dataset.price);
@@ -363,6 +398,12 @@
     }
 
     function generateBraceletCode() {
+      if (!selectedMetal) {
+        codeDisplay.textContent = "❌ Please choose SILVER or GOLD first.";
+        copyMsg.textContent = "";
+        return;
+      }
+
       const charms = bracelet.querySelectorAll('.bracelet-item');
       if (charms.length === 0) {
         codeDisplay.textContent = "No charms selected.";
@@ -370,7 +411,7 @@
         return;
       }
 
-      let code = Array.from(charms).map(c => c.dataset.name).join('-');
+      let code = selectedMetal + "-" + Array.from(charms).map(c => c.dataset.name).join('-');
       codeDisplay.textContent = code;
 
       navigator.clipboard.writeText(code).then(() => {
@@ -382,72 +423,3 @@
   </script>
 </body>
 </html>
-   </div>
-    </div>
-  </div>
-<div style="text-align: center; margin-top: 30px;">
-  <!-- Buttons -->
-  <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-    <button onclick="toggleSizeGuide()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
-      📏 Size Guide
-    </button>
-    <button onclick="toggleFAQ()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
-      ❓ FAQs
-    </button>
-    <button onclick="toggleSocials()" style="padding: 10px 15px; border-radius: 5px; background: #000; color: #fff; border: none; cursor: pointer;">
-      📲 Social Media
-    </button>
-  </div>
-
-  <!-- Size Guide Dropdown -->
-  <div id="sizeGuide" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
-    <p>S - 16 links</p>
-    <p>M - 17 links</p>
-    <p>L - 18 links</p>
-    <p>XL - 19 links</p>
-    <p>XXL - 20 links</p>
-  </div>
-
-  <!-- FAQ Dropdown -->
-  <div id="faqSection" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
-    <p><strong>Q: How many charms fit in one bracelet?</strong><br>A: Usually around 17-18 charms fit comfortably in a standard size.</p>
-    <p><strong>Q: How do I send you my bracelet?</strong><br>A: Click the copy bracelet code button after creating your piece and then DM it to us or input it in your order google form!</p>
-    <p><strong>Q: Do you offer custom images on charms?</strong><br>A: Yes! Message us for more info on personalized designs.</p>
-    <p><strong>Q: How long does it take to process and ship my order?</strong><br>A: Depends on the availability of the charms. For custom pieces and pre-orders, it may take 3-14 days. For ready-made orders, it may take 3-7 days depending on your location.</p>
-  </div>
-
-  <!-- Social Media Dropdown -->
-  <div id="socialSection" style="display: none; margin-top: 10px; font-size: 1rem; color: #333;">
-    <p><strong>Instagram:</strong> @trinkd.ph</p
-    <p><strong>Facebook:</strong> @trinkdph</p>   
-    <p><strong>TikTok:</strong> @trinkd.ph</p>
-    <p><strong>Email:</strong> trinkdph@gmail.com</p>
-  </div>
-</div>
-<script>
-  function toggleSection(sectionId) {
-    const allSections = ['sizeGuide', 'faqSection', 'socialSection'];
-
-    allSections.forEach(id => {
-      const el = document.getElementById(id);
-      if (id === sectionId) {
-        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
-      } else {
-        el.style.display = 'none'; // Optional: close other dropdowns
-      }
-    });
-  }
-
-  function toggleSizeGuide() {
-    toggleSection('sizeGuide');
-  }
-
-  function toggleFAQ() {
-    toggleSection('faqSection');
-  }
-
-  function toggleSocials() {
-    toggleSection('socialSection');
-  }
-</script>
-
