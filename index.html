@@ -278,26 +278,27 @@
     <p>Build Your Own Italian Charm Bracelet</p>
   </header>
 
-  <div class="builder-container">
-    <div class="summary-bar">
-      <div class="summary-content">
-        <div class="bracelet" id="bracelet"></div>
-        <div id="metalPlaceholder" style="text-align:center; font-weight:600; color:#666; margin-top:5px;">
-          Please choose SILVER or GOLD first
-        </div>
+  <!-- Summary bar moved OUTSIDE of builder-container -->
+  <div class="summary-bar">
+    <div class="summary-content">
+      <div class="bracelet" id="bracelet"></div>
+      <div id="metalPlaceholder" style="text-align:center; font-weight:600; color:#666; margin-top:5px;">
+        Please choose SILVER or GOLD first
+      </div>
 
-        <div class="metal-buttons">
-          <button onclick="selectMetal('SILVER')" id="silverBtn">SILVER</button>
-          <button onclick="selectMetal('GOLD')" id="goldBtn">GOLD</button>
-        </div>
+      <div class="metal-buttons">
+        <button onclick="selectMetal('SILVER')" id="silverBtn">SILVER</button>
+        <button onclick="selectMetal('GOLD')" id="goldBtn">GOLD</button>
+      </div>
 
-        <div class="total">
-          Total: ₱<span id="totalPrice">0</span><br>
-          Charms: <span id="charmCount">0</span>
-        </div>
+      <div class="total">
+        Total: ₱<span id="totalPrice">0</span><br>
+        Charms: <span id="charmCount">0</span>
       </div>
     </div>
+  </div>
 
+  <div class="builder-container">
     <div class="controls">
       <button onclick="clearBracelet()">Clear Bracelet</button>
       <button onclick="generateBraceletCode()">Copy Bracelet Code</button>
@@ -319,7 +320,6 @@
     <div class="category-card">
       <h2>PLAIN</h2>
       <div class="charm-menu">
-
         <!-- Charm 71 -->
         <img src="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/71.webp"
           class="charm"
@@ -339,7 +339,6 @@
           data-silver="https://raw.githubusercontent.com/TRINKDPH/italiancharmimages/main/72.webp"
           data-gold="https://raw.githubusercontent.com/TRINKDPH/italiancharmimagesgold/main/72.webp"
           loading="lazy">
-
       </div>
     </div>
   </div>
@@ -368,22 +367,18 @@
       const placeholder = document.getElementById('metalPlaceholder');
       if (placeholder) placeholder.style.display = 'none';
 
-      // Update all charm thumbnails (so the menu shows the selected metal preview)
       document.querySelectorAll('.charm').forEach(img => {
         const newSrc = (selectedMetal === 'SILVER' ? img.dataset.silver : img.dataset.gold);
         if (newSrc) img.src = newSrc;
       });
 
-      // Update bracelet items (image, price, and code name) to reflect new metal
       braceletItems.forEach(item => {
         item.src = (selectedMetal === 'SILVER' ? item.silverSrc : item.goldSrc);
         item.price = (selectedMetal === 'SILVER' ? item.silverPrice : item.goldPrice);
         item.name = (selectedMetal === 'SILVER' ? 'S' : 'G') + item.baseName;
       });
 
-      // When user switches metal we MUST reset the bracelet code display so they need to copy again
       _resetBraceletCodeDisplay();
-
       renderBracelet();
     }
 
@@ -414,7 +409,6 @@
         goldPrice: goldPrice
       });
 
-      // do NOT reset bracelet code here — user may want to copy after building in same metal
       renderBracelet();
     }
 
@@ -465,12 +459,10 @@
       document.getElementById('braceletCode').innerText = code || '...';
       document.getElementById('copyMsg').innerText = code ? "Copied!" : "";
       if (code) {
-        // try to copy to clipboard (may be blocked in some contexts)
-        try { navigator.clipboard.writeText(code); } catch (e) { /* ignore */ }
+        try { navigator.clipboard.writeText(code); } catch (e) { }
       }
     }
 
-    // Add click listeners for charms (no inline onclick in HTML to avoid duplicate events)
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.charm').forEach(charm => {
         charm.addEventListener('click', () => addCharm(charm));
@@ -480,9 +472,6 @@
   </script>
 </body>
 </html>
-
-
-
 
 <!-- Category: Universities -->
 <div class="category-card">
