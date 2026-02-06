@@ -1268,7 +1268,7 @@
       codeDisplay.textContent = code;
 
       navigator.clipboard.writeText(code).then(() => {
-        copyMsg.textContent = "✅ Copied! DM it to us or paste it in your order google form.";
+        copyMsg.textContent = "✅ Copied! Please paste it in the order form.";
       }).catch(() => {
         copyMsg.textContent = "❌ Couldn’t copy. Please copy it manually.";
       });
