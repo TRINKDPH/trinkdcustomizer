@@ -1626,7 +1626,7 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(compilationString)
             .then(() => {
-              DOM.outputBox.textContent = `✅ Copied! DM it to us or paste it in your order google form.`;
+              DOM.outputBox.textContent = `✅ Copied! Click the "Order Here" button and paste the code in the order form.`;
             })
             .catch(() => {
               DOM.outputBox.textContent = `${compilationString} (Please copy manually)`;
