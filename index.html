@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>TRINK'D Customizer</title>
   <style>
     :root {
@@ -572,7 +572,7 @@
         <span></span>
       </div>
     </button>
-    <a href="https://forms.gle/7WUaJ7Zfq6rC4H5p9" target="_blank" class="cart-link-btn">Order Here!</a>
+    <a href="https://forms.gle/uqXf3jKGsZHcYw4j9" target="_blank" class="cart-link-btn">Order Here!</a>
   </nav>
 
   <div class="drawer-overlay" id="menuOverlay"></div>
@@ -1928,201 +1928,338 @@
 
   </main>
 
-  <script>
-    (() => {
-      const state = {
-        chosenMetal: null,
-        activeTotalCost: 0,
-        nodesList: []
+<script>
+(() => {
+  const STORAGE_KEY = "trinkdBracelet";
+
+  const state = {
+    chosenMetal: null,
+    activeTotalCost: 0,
+    nodesList: []
+  };
+
+  const DOM = {
+    track: document.getElementById('assemblyTrack'),
+    placeholder: document.getElementById('placeholderMsg'),
+    metalAlert: document.getElementById('metalAlert'),
+    countBox: document.getElementById('countBox'),
+    priceBox: document.getElementById('priceBox'),
+    outputBox: document.getElementById('stringOutput'),
+    clearBtn: document.getElementById('clearBtn'),
+    exportBtn: document.getElementById('exportBtn'),
+    catalogWrapper: document.getElementById('catalogEntries'),
+    searchBar: document.getElementById('categorySearch'),
+    metalSelectors: document.querySelectorAll('.metal-selector .btn'),
+    menuToggle: document.getElementById('menuToggle'),
+    menuClose: document.getElementById('menuClose'),
+    sideDrawer: document.getElementById('sideDrawer'),
+    menuOverlay: document.getElementById('menuOverlay')
+  };
+
+  function saveBracelet() {
+    try {
+      const data = {
+        chosenMetal: state.chosenMetal,
+        charms: state.nodesList.map(node => ({
+          id: node.dataset.id
+        }))
       };
 
-      const DOM = {
-        track: document.getElementById('assemblyTrack'),
-        placeholder: document.getElementById('placeholderMsg'),
-        metalAlert: document.getElementById('metalAlert'),
-        countBox: document.getElementById('countBox'),
-        priceBox: document.getElementById('priceBox'),
-        outputBox: document.getElementById('stringOutput'),
-        clearBtn: document.getElementById('clearBtn'),
-        exportBtn: document.getElementById('exportBtn'),
-        catalogWrapper: document.getElementById('catalogEntries'),
-        searchBar: document.getElementById('categorySearch'),
-        metalSelectors: document.querySelectorAll('.metal-selector .btn'),
-        menuToggle: document.getElementById('menuToggle'),
-        menuClose: document.getElementById('menuClose'),
-        sideDrawer: document.getElementById('sideDrawer'),
-        menuOverlay: document.getElementById('menuOverlay')
-      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
-      function toggleDrawer(isOpen) {
-        if (isOpen) {
-          DOM.sideDrawer.classList.add('drawer-open');
-          DOM.menuOverlay.classList.add('overlay-active');
-        } else {
-          DOM.sideDrawer.classList.remove('drawer-open');
-          DOM.menuOverlay.classList.remove('overlay-active');
-        }
+  function toggleDrawer(isOpen) {
+    if (isOpen) {
+      DOM.sideDrawer.classList.add('drawer-open');
+      DOM.menuOverlay.classList.add('overlay-active');
+    } else {
+      DOM.sideDrawer.classList.remove('drawer-open');
+      DOM.menuOverlay.classList.remove('overlay-active');
+    }
+  }
+
+  DOM.menuToggle.addEventListener('click', () => toggleDrawer(true));
+  DOM.menuClose.addEventListener('click', () => toggleDrawer(false));
+  DOM.menuOverlay.addEventListener('click', () => toggleDrawer(false));
+
+  DOM.searchBar.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const sections = DOM.catalogWrapper.querySelectorAll('.catalog-section');
+
+    sections.forEach(section => {
+      const categoryName = section.getAttribute('data-category') || '';
+      const sectionTitle = section.querySelector('.section-title').textContent.toLowerCase();
+
+      if (
+        categoryName.includes(query) ||
+        sectionTitle.includes(query)
+      ) {
+        section.style.display = 'block';
+      } else {
+        section.style.display = 'none';
       }
+    });
+  });
 
-      DOM.menuToggle.addEventListener('click', () => toggleDrawer(true));
-      DOM.menuClose.addEventListener('click', () => toggleDrawer(false));
-      DOM.menuOverlay.addEventListener('click', () => toggleDrawer(false));
+  DOM.metalSelectors.forEach(button => {
+    button.addEventListener('click', (e) => {
+      setMetalSystem(
+        e.target.getAttribute('data-metal')
+      );
+    });
+  });
 
-      DOM.searchBar.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        const sections = DOM.catalogWrapper.querySelectorAll('.catalog-section');
+  DOM.catalogWrapper.addEventListener('click', (e) => {
+    const structuralCard = e.target.closest('.charm-source');
+    if (structuralCard) executeAddition(structuralCard);
+  });
 
-        sections.forEach(section => {
-          const categoryName = section.getAttribute('data-category') || '';
-          const sectionTitle = section.querySelector('.section-title').textContent.toLowerCase();
-          
-          if (categoryName.includes(query) || sectionTitle.includes(query)) {
-            section.style.display = 'block';
-          } else {
-            section.style.display = 'none';
+  DOM.clearBtn.addEventListener('click', resetTrackerState);
+  DOM.exportBtn.addEventListener('click', exportConfigurationData);
+
+  function setMetalSystem(metalSelection) {
+    state.chosenMetal = metalSelection;
+
+    DOM.metalAlert.style.display = 'none';
+
+    DOM.metalSelectors.forEach(btn => {
+      btn.classList.toggle(
+        'active-choice',
+        btn.getAttribute('data-metal') === metalSelection
+      );
+    });
+
+    document.querySelectorAll('.charm-source').forEach(card => {
+      const targetedSource =
+        metalSelection === 'SILVER'
+          ? card.dataset.imgSilver
+          : card.dataset.imgGold;
+
+      if (targetedSource) {
+        card.querySelector('img').src = targetedSource;
+      }
+    });
+  }
+
+  function calculateNodeCost(datasetRef) {
+    if (state.chosenMetal === 'SILVER') {
+      return parseInt(datasetRef.costSilver, 10) || 0;
+    }
+
+    if (state.chosenMetal === 'GOLD') {
+      return parseInt(datasetRef.costGold, 10) || 0;
+    }
+
+    return 0;
+  }
+
+  function executeAddition(cardElement) {
+    if (!state.chosenMetal) {
+      DOM.outputBox.textContent =
+        "❌ Please choose SILVER or GOLD first.";
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+
+      return;
+    }
+
+    DOM.placeholder.style.display = 'none';
+
+    const id = cardElement.dataset.id;
+    const preciseCost = calculateNodeCost(cardElement.dataset);
+
+    const sourceImage =
+      state.chosenMetal === 'SILVER'
+        ? cardElement.dataset.imgSilver
+        : cardElement.dataset.imgGold;
+
+    const linkNode = document.createElement('div');
+
+    linkNode.className = 'link-node';
+    linkNode.dataset.id = id;
+    linkNode.dataset.calculatedValue = preciseCost;
+
+    const structuralImage =
+      document.createElement('img');
+
+    structuralImage.src = sourceImage;
+
+    linkNode.appendChild(structuralImage);
+
+    const deleteTrigger =
+      document.createElement('button');
+
+    deleteTrigger.className = 'node-delete';
+    deleteTrigger.innerHTML = '&times;';
+
+    deleteTrigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      executeRemoval(linkNode, preciseCost);
+    });
+
+    linkNode.appendChild(deleteTrigger);
+
+    DOM.track.appendChild(linkNode);
+
+    state.nodesList.push(linkNode);
+    state.activeTotalCost += preciseCost;
+
+   refreshDashboardDisplays();
+
+clearTimeout(window.saveTimer);
+
+window.saveTimer = setTimeout(() => {
+  saveBracelet();
+}, 250);
+
+    DOM.track.scrollTo({
+      left: DOM.track.scrollWidth,
+      behavior: 'smooth'
+    });
+  }
+
+  function executeRemoval(nodeElement, computationalCost) {
+    DOM.track.removeChild(nodeElement);
+
+    state.nodesList =
+      state.nodesList.filter(
+        item => item !== nodeElement
+      );
+
+    state.activeTotalCost -= computationalCost;
+
+    if (state.nodesList.length === 0) {
+      DOM.placeholder.style.display = 'block';
+    }
+
+   refreshDashboardDisplays();
+
+clearTimeout(window.saveTimer);
+
+window.saveTimer = setTimeout(() => {
+  saveBracelet();
+}, 250);
+  }
+
+  function refreshDashboardDisplays() {
+    DOM.countBox.textContent =
+      state.nodesList.length;
+
+    DOM.priceBox.textContent =
+      state.activeTotalCost;
+  }
+
+  function resetTrackerState() {
+    DOM.track.innerHTML = '';
+
+    DOM.track.appendChild(
+      DOM.placeholder
+    );
+
+    DOM.placeholder.style.display = 'block';
+
+    state.nodesList = [];
+    state.activeTotalCost = 0;
+
+    refreshDashboardDisplays();
+
+    DOM.outputBox.textContent = "...";
+
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  function exportConfigurationData() {
+    if (!state.chosenMetal) {
+      DOM.outputBox.textContent =
+        "❌ Please choose SILVER or GOLD first.";
+      return;
+    }
+
+    if (state.nodesList.length === 0) {
+      DOM.outputBox.textContent =
+        "No charms selected.";
+      return;
+    }
+
+    const identificationPrefix =
+      state.chosenMetal === 'SILVER'
+        ? 'S'
+        : 'G';
+
+    const compilationString =
+      state.nodesList
+        .map(
+          node =>
+            `${identificationPrefix}${node.dataset.id}`
+        )
+        .join('-');
+
+    DOM.outputBox.textContent =
+      compilationString;
+
+    if (
+      navigator.clipboard &&
+      navigator.clipboard.writeText
+    ) {
+      navigator.clipboard
+        .writeText(compilationString)
+        .then(() => {
+          DOM.outputBox.textContent =
+            "✅ Copied! DM it to us or paste it in your order google form.";
+        })
+        .catch(() => {
+          DOM.outputBox.textContent =
+            compilationString +
+            " (Please copy manually)";
+        });
+    }
+  }
+
+  function restoreBracelet() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) return;
+
+    const saved = JSON.parse(raw);
+
+    if (saved.chosenMetal) {
+      setMetalSystem(saved.chosenMetal);
+    }
+
+    if (
+      saved.charms &&
+      Array.isArray(saved.charms)
+    ) {
+      const charmMap = {};
+
+      document.querySelectorAll('.charm-source').forEach(card => {
+        charmMap[card.dataset.id] = card;
+      });
+
+      setTimeout(() => {
+        saved.charms.forEach(charm => {
+          const card = charmMap[charm.id];
+
+          if (card) {
+            executeAddition(card);
           }
         });
-      });
+      }, 100);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
 
-      DOM.metalSelectors.forEach(button => {
-        button.addEventListener('click', (e) => {
-          setMetalSystem(e.target.getAttribute('data-metal'));
-        });
-      });
-
-      DOM.catalogWrapper.addEventListener('click', (e) => {
-        const structuralCard = e.target.closest('.charm-source');
-        if (structuralCard) executeAddition(structuralCard);
-      });
-
-      DOM.clearBtn.addEventListener('click', resetTrackerState);
-      DOM.exportBtn.addEventListener('click', exportConfigurationData);
-
-      function setMetalSystem(metalSelection) {
-        state.chosenMetal = metalSelection;
-        DOM.metalAlert.style.display = 'none';
-        
-        DOM.metalSelectors.forEach(btn => {
-          btn.classList.toggle('active-choice', btn.getAttribute('data-metal') === metalSelection);
-        });
-
-        document.querySelectorAll('.charm-source').forEach(card => {
-          const targetedSource = metalSelection === 'SILVER' ? card.dataset.imgSilver : card.dataset.imgGold;
-          if (targetedSource) {
-            card.querySelector('img').src = targetedSource;
-          }
-        });
-
-        if(state.nodesList.length > 0) {
-          resetTrackerState();
-          DOM.outputBox.textContent = "Base configuration altered. Workspace updated.";
-        }
-      }
-
-      function calculateNodeCost(datasetRef) {
-        if (state.chosenMetal === 'SILVER') {
-          return parseInt(datasetRef.costSilver, 10) || 0;
-        } else if (state.chosenMetal === 'GOLD') {
-          return parseInt(datasetRef.costGold, 10) || 0; 
-        }
-        return 0;
-      }
-
-      function executeAddition(cardElement) {
-        if (!state.chosenMetal) {
-          DOM.outputBox.textContent = "❌ Please choose SILVER or GOLD first.";
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
-        }
-
-        DOM.placeholder.style.display = 'none';
-
-        const id = cardElement.dataset.id;
-        const preciseCost = calculateNodeCost(cardElement.dataset);
-        const sourceImage = state.chosenMetal === 'SILVER' ? cardElement.dataset.imgSilver : cardElement.dataset.imgGold;
-
-        const linkNode = document.createElement('div');
-        linkNode.className = 'link-node';
-        linkNode.dataset.id = id;
-        linkNode.dataset.calculatedValue = preciseCost;
-
-        const structuralImage = document.createElement('img');
-        structuralImage.src = sourceImage;
-        linkNode.appendChild(structuralImage);
-
-        const deleteTrigger = document.createElement('button');
-        deleteTrigger.className = 'node-delete';
-        deleteTrigger.innerHTML = '&times;';
-        
-        deleteTrigger.addEventListener('click', (e) => {
-          e.stopPropagation(); 
-          executeRemoval(linkNode, preciseCost);
-        });
-
-        linkNode.appendChild(deleteTrigger);
-        DOM.track.appendChild(linkNode);
-
-        state.nodesList.push(linkNode);
-        state.activeTotalCost += preciseCost;
-        
-        refreshDashboardDisplays();
-        DOM.track.scrollTo({ left: DOM.track.scrollWidth, behavior: 'smooth' });
-      }
-
-      function executeRemoval(nodeElement, computationalCost) {
-        DOM.track.removeChild(nodeElement);
-        state.nodesList = state.nodesList.filter(item => item !== nodeElement);
-        state.activeTotalCost -= computationalCost;
-
-        if (state.nodesList.length === 0) {
-          DOM.placeholder.style.display = 'block';
-        }
-        refreshDashboardDisplays();
-      }
-
-      function refreshDashboardDisplays() {
-        DOM.countBox.textContent = state.nodesList.length;
-        DOM.priceBox.textContent = state.activeTotalCost;
-      }
-
-      function resetTrackerState() {
-        DOM.track.innerHTML = '';
-        DOM.track.appendChild(DOM.placeholder);
-        DOM.placeholder.style.display = 'block';
-        
-        state.nodesList = [];
-        state.activeTotalCost = 0;
-        
-        refreshDashboardDisplays();
-        DOM.outputBox.textContent = "...";
-      }
-
-      function exportConfigurationData() {
-        if (!state.chosenMetal) {
-          DOM.outputBox.textContent = "❌ Please choose SILVER or GOLD first.";
-          return;
-        }
-        if (state.nodesList.length === 0) {
-          DOM.outputBox.textContent = "No charms selected.";
-          return;
-        }
-
-        const identificationPrefix = state.chosenMetal === 'SILVER' ? 'S' : 'G';
-        const compilationString = state.nodesList.map(node => `${identificationPrefix}${node.dataset.id}`).join('-');
-
-        DOM.outputBox.textContent = compilationString;
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(compilationString)
-            .then(() => {
-              DOM.outputBox.textContent = `✅ Copied! DM it to us or paste it in your order google form.`;
-            })
-            .catch(() => {
-              DOM.outputBox.textContent = `${compilationString} (Please copy manually)`;
-            });
-        }
-      }
-    })();
-  </script>
+  restoreBracelet();
+})();
+</script>
 </body>
 </html>
