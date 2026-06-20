@@ -244,13 +244,14 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      cursor: grab; 
+      cursor: grab;
     }
 
     .link-node img {
       width: 100%;
       height: 100%;
       object-fit: contain;
+      pointer-events: none; /* Prevents native image drag loops */
     }
 
     .node-delete {
@@ -2340,133 +2341,156 @@ window.saveTimer = setTimeout(() => {
   }
 }
 /* ==========================================
-   CROSS-PLATFORM DRAG & DROP REORDERING SYSTEM
-   ========================================== */
-(() => {
-  let dragElement = null;
-  let startX = 0;
-  let currentX = 0;
-  let initialScrollLeft = 0;
-  let ghostNode = null;
-  let elementPositions = [];
+     INTEGRATED DRAG & DROP WITH AUTO-SCROLL
+     ========================================== */
+  (() => {
+    let dragElement = null;
+    let startX = 0;
+    let currentX = 0;
+    let elementPositions = [];
+    let scrollSpeed = 0;
+    let animationFrameId = null;
 
-  // Initialize event routing on the track container
-  DOM.track.addEventListener('pointerdown', onPointerDown);
+    if (!DOM.track) return;
 
- function onPointerDown(e) {
-    // Only drag links; bypass delete buttons or empty placeholders
-    const targetNode = e.target.closest('.link-node');
-    if (!targetNode || e.target.classList.contains('node-delete')) return;
+    DOM.track.addEventListener('pointerdown', onPointerDown);
 
-    // CRUCIAL FIX: Stop the browser from initiating native image drag/text selection.
-    // This makes it work perfectly on the very first click/tap.
-    e.preventDefault();
+    function onPointerDown(e) {
+      const targetNode = e.target.closest('.link-node');
+      if (!targetNode || e.target.classList.contains('node-delete')) return;
 
-    // Capture pointer lock to continue tracking even if fingers/mouse leave boundaries
-    DOM.track.setPointerCapture(e.pointerId);
+      // Single-action activation across Desktop + Touch Devices
+      e.preventDefault();
+      DOM.track.setPointerCapture(e.pointerId);
 
-    dragElement = targetNode;
-    startX = e.clientX;
-    initialScrollLeft = DOM.track.scrollLeft;
+      dragElement = targetNode;
+      startX = e.clientX;
 
-    // Apply active structural styles to the moving node
-    dragElement.style.opacity = '0.5';
-    dragElement.style.transform = 'scale(1.05)';
-    dragElement.style.transition = 'none';
-    dragElement.style.zIndex = '1000';
+      dragElement.style.opacity = '0.5';
+      dragElement.style.transform = 'scale(1.05)';
+      dragElement.style.transition = 'none';
+      dragElement.style.zIndex = '1000';
 
-    // Calculate structural layouts of siblings to predict layout drops
-    cacheElementPositions();
+      cacheElementPositions();
 
-    DOM.track.addEventListener('pointermove', onPointerMove);
-    DOM.track.addEventListener('pointerup', onPointerUp);
-    DOM.track.addEventListener('pointercancel', onPointerUp);
-  }
+      DOM.track.addEventListener('pointermove', onPointerMove);
+      DOM.track.addEventListener('pointerup', onPointerUp);
+      DOM.track.addEventListener('pointercancel', onPointerUp);
+    }
 
-  function onPointerMove(e) {
-    if (!dragElement) return;
+    function onPointerMove(e) {
+      if (!dragElement) return;
 
-    currentX = e.clientX;
-    const deltaX = currentX - startX;
-    
-    // Shift the element's position relative to its current layout tracking
-    dragElement.style.transform = `translateX(${deltaX}px) scale(1.05)`;
+      currentX = e.clientX;
+      const deltaX = currentX - startX;
+      dragElement.style.transform = `translateX(${deltaX}px) scale(1.05)`;
 
-    // Map exact cursor placement relative to the horizontally scrolling container
-    const trackRect = DOM.track.getBoundingClientRect();
-    const currentAbsoluteX = currentX - trackRect.left + DOM.track.scrollLeft;
+      const trackRect = DOM.track.getBoundingClientRect();
+      const edgeThreshold = 50; 
+      const maxSpeed = 12;      
 
-    // Find where the element sits inside the current layout flow
-    let insertBeforeElement = null;
-    for (let pos of elementPositions) {
-      if (pos.element === dragElement) continue;
-      if (currentAbsoluteX < pos.midX) {
-        insertBeforeElement = pos.element;
-        break;
+      if (currentX > trackRect.right - edgeThreshold) {
+        const intensity = (currentX - (trackRect.right - edgeThreshold)) / edgeThreshold;
+        scrollSpeed = Math.min(intensity, 1) * maxSpeed;
+      } else if (currentX < trackRect.left + edgeThreshold) {
+        const intensity = ((trackRect.left + edgeThreshold) - currentX) / edgeThreshold;
+        scrollSpeed = -Math.min(intensity, 1) * maxSpeed;
+      } else {
+        scrollSpeed = 0;
+      }
+
+      if (scrollSpeed !== 0 && !animationFrameId) {
+        startAutoScroll();
+      } else if (scrollSpeed === 0 && animationFrameId) {
+        stopAutoScroll();
+      }
+
+      updateDOMArrangement();
+    }
+
+    function updateDOMArrangement() {
+      const trackRect = DOM.track.getBoundingClientRect();
+      const currentAbsoluteX = currentX - trackRect.left + DOM.track.scrollLeft;
+
+      let insertBeforeElement = null;
+      for (let pos of elementPositions) {
+        if (pos.element === dragElement) continue;
+        if (currentAbsoluteX < pos.midX) {
+          insertBeforeElement = pos.element;
+          break;
+        }
+      }
+
+      if (insertBeforeElement) {
+        if (dragElement.nextSibling !== insertBeforeElement) {
+          DOM.track.insertBefore(dragElement, insertBeforeElement);
+        }
+      } else {
+        const lastChild = DOM.track.lastElementChild;
+        if (lastChild && dragElement !== lastChild && !lastChild.classList.contains('track-placeholder')) {
+          DOM.track.appendChild(dragElement);
+        }
       }
     }
 
-    // Rearrange visually in the DOM dynamically
-    if (insertBeforeElement) {
-      if (dragElement.nextSibling !== insertBeforeElement) {
-        DOM.track.insertBefore(dragElement, insertBeforeElement);
-      }
-    } else {
-      // Append to the end if dragged past all nodes
-      const lastChild = DOM.track.lastElementChild;
-      if (lastChild && dragElement !== lastChild && !lastChild.classList.contains('track-placeholder')) {
-        DOM.track.appendChild(dragElement);
+    function startAutoScroll() {
+      if (!dragElement) return;
+      
+      DOM.track.scrollLeft += scrollSpeed;
+      cacheElementPositions();
+      updateDOMArrangement();
+      
+      animationFrameId = requestAnimationFrame(startAutoScroll);
+    }
+
+    function stopAutoScroll() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
       }
     }
-  }
 
-  function onPointerUp(e) {
-    if (!dragElement) return;
+    function onPointerUp(e) {
+      if (!dragElement) return;
 
-    // Clean up bounds-locking execution hooks
-    DOM.track.releasePointerCapture(e.pointerId);
+      stopAutoScroll();
+      DOM.track.releasePointerCapture(e.pointerId);
 
-    DOM.track.removeEventListener('pointermove', onPointerMove);
-    DOM.track.removeEventListener('pointerup', onPointerUp);
-    DOM.track.removeEventListener('pointercancel', onPointerUp);
+      DOM.track.removeEventListener('pointermove', onPointerMove);
+      DOM.track.removeEventListener('pointerup', onPointerUp);
+      DOM.track.removeEventListener('pointercancel', onPointerUp);
 
-    // Clean up layout modifications safely
-    dragElement.style.opacity = '';
-    dragElement.style.transform = '';
-    dragElement.style.transition = '';
-    dragElement.style.zIndex = '';
+      dragElement.style.opacity = '';
+      dragElement.style.transform = '';
+      dragElement.style.transition = '';
+      dragElement.style.zIndex = '';
 
-    dragElement = null;
+      dragElement = null;
+      syncStateWithDOM();
+    }
 
-    // Crucial: Update your central array tracking to match the new DOM visual architecture
-    syncStateWithDOM();
-  }
-
-  function cacheElementPositions() {
-    elementPositions = [];
-    const children = DOM.track.querySelectorAll('.link-node');
-    children.forEach(child => {
-      const rect = child.getBoundingClientRect();
-      const relativeLeft = rect.left - DOM.track.getBoundingClientRect().left + DOM.track.scrollLeft;
-      elementPositions.push({
-        element: child,
-        midX: relativeLeft + rect.width / 2
+    function cacheElementPositions() {
+      elementPositions = [];
+      const children = DOM.track.querySelectorAll('.link-node');
+      children.forEach(child => {
+        const rect = child.getBoundingClientRect();
+        const relativeLeft = rect.left - DOM.track.getBoundingClientRect().left + DOM.track.scrollLeft;
+        elementPositions.push({
+          element: child,
+          midX: relativeLeft + rect.width / 2
+        });
       });
-    });
-  }
+    }
 
-  function syncStateWithDOM() {
-    // Re-index nodes based on the current physical arrangement
-    const updatedNodes = Array.from(DOM.track.querySelectorAll('.link-node'));
-    state.nodesList = updatedNodes;
+    function syncStateWithDOM() {
+      const updatedNodes = Array.from(DOM.track.querySelectorAll('.link-node'));
+      state.nodesList = updatedNodes;
 
-    // Trigger save sync loops
-    clearTimeout(window.saveTimer);
-    window.saveTimer = setTimeout(() => {
-      saveBracelet();
-    }, 250);
-  }
-})();
+      clearTimeout(window.saveTimer);
+      window.saveTimer = setTimeout(() => { saveBracelet(); }, 250);
+    }
+  })();
+
   restoreBracelet();
 })();
 </script>
