@@ -214,14 +214,47 @@
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      min-height: 64px;
+      min-height: 72px; /* Slightly increased to perfectly accommodate the thicker scrollbar */
       background: #f0f0f0;
       border: 1px solid #ccc;
       border-radius: var(--radius-sm);
-      padding: 8px;
+      padding: 8px 8px 12px 8px; /* Added extra bottom padding so elements don't overlap the scrollbar */
       overflow-x: auto;
       margin-bottom: 12px;
       -webkit-overflow-scrolling: touch; 
+      
+      /* Cross-browser standard syntax (Firefox) */
+      scrollbar-width: auto; 
+      scrollbar-color: var(--text-dark) #e0e0e0;
+    }
+
+    /* Force visible, high-contrast scrollbar engines (Chrome, Safari, iOS, Android) */
+    .bracelet-track::-webkit-scrollbar {
+      height: 10px; /* Thicker track to make it easy to see and grab on mobile */
+      display: block !important;
+    }
+
+    .bracelet-track::-webkit-scrollbar-track {
+      background: #e0e0e0; /* Visible grey background track background */
+      border-radius: var(--radius-sm);
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.1);
+    }
+
+    .bracelet-track::-webkit-scrollbar-thumb {
+      background-color: var(--text-dark); /* Solid dark drag handle matching your theme */
+      border-radius: var(--radius-sm);
+      border: 1px solid #e0e0e0; /* Creates breathing room around the thumb */
+    }
+
+    /* Ensure pointer events don't completely break scrollability while bypassing standard drag */
+    @media (max-width: 480px) {
+      .bracelet-track {
+        min-height: 66px;
+        padding-bottom: 10px;
+      }
+      .bracelet-track::-webkit-scrollbar {
+        height: 8px; /* Slightly adjusted scale for smaller viewports */
+      }
     }
 
     .track-placeholder {
@@ -409,7 +442,69 @@
       aspect-ratio: 1;
       object-fit: contain;
     }
+/* --- Full Bracelet Unbroken Single Line Tweak --- */
+    .full-view-container {
+      width: 100%;
+      background: #f0f0f0;
+      padding: 24px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #ccc;
+      overflow: hidden; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    #fullBraceletGrid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap !important; /* CRITICAL: Prevents breaking into multiple rows */
+      justify-content: center;
+      align-items: center;
+      width: max-content;
+    }
+
+    #fullBraceletGrid .link-node {
+      margin-right: -4px;
+      cursor: default;
+      flex: 0 0 auto; /* Keeps individual nodes from squishing out of shape */
+    }
+
+    #fullBraceletGrid .node-delete {
+      display: none !important; /* Strips deletion marks out of preview completely */
+    }
+/* --- Full Bracelet Unbroken Single Line Tweak --- */
+    .full-view-container {
+      width: 100%;
+      background: #f0f0f0;
+      padding: 30px 10px; /* Extra breathing room vertically for scaled down links */
+      border-radius: var(--radius-sm);
+      border: 1px solid #ccc;
+      overflow: hidden; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fullBraceletGrid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap !important; /* Forces one single line rule */
+      justify-content: center;
+      align-items: center;
+      width: max-content;
+      white-space: nowrap;
+    }
+
+    #fullBraceletGrid .link-node {
+      margin-right: -4px;
+      cursor: default;
+      flex: 0 0 auto;
+    }
+
+    #fullBraceletGrid .node-delete {
+      display: none !important;
+    }
     /* Size Guide Modal Layout Styling */
     .modal-overlay {
       position: fixed;
@@ -737,11 +832,33 @@
     </div>
   </section>
 
-  <section class="action-cluster">
+ <section class="action-cluster">
+    <button type="button" class="btn" id="viewFullBtn">View Full Design</button>
     <button type="button" class="btn" id="clearBtn">Clear Bracelet</button>
     <button type="button" class="btn" id="exportBtn">Copy Bracelet Code</button>
     <div class="code-output-container" id="stringOutput">...</div>
   </section>
+
+  <div class="modal-overlay" id="fullBraceletOverlay">
+    <div class="size-modal" style="max-width: 95%; width: 650px;">
+      <div class="modal-header">
+        <h2>Your Full Design</h2>
+        <button class="modal-close" id="fullBraceletClose">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 15px;">
+        <p class="modal-intro" style="margin-bottom: 15px;">You can take a screenshot for your own reference. </p>
+        
+        <div class="full-view-container">
+          <div id="fullBraceletGrid">
+            </div>
+        </div>
+
+        <div class="modal-note" style="text-align: left; margin-top: 15px;">
+          📸 <strong>Reminder:</strong> The amount of charms you chose in this design will be the exact amount you will receive. If you want to order a full bracelet, add enough charms until you reach your size!
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="search-wrapper">
     <input type="text" class="search-input" id="categorySearch" placeholder="Search categories (e.g., Universities, Letters, Plain)...">
@@ -2022,6 +2139,13 @@
   };
 
   const DOM = {
+    // New Preview Selectors
+    viewFullBtn: document.getElementById('viewFullBtn'),
+    fullOverlay: document.getElementById('fullBraceletOverlay'),
+    fullClose: document.getElementById('fullBraceletClose'),
+    fullGrid: document.getElementById('fullBraceletGrid'),
+    
+    // Original Core Selectors
     track: document.getElementById('assemblyTrack'),
     placeholder: document.getElementById('placeholderMsg'),
     metalAlert: document.getElementById('metalAlert'),
@@ -2047,7 +2171,6 @@
           id: node.dataset.id
         }))
       };
-
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
       console.log(e);
@@ -2076,10 +2199,7 @@
       const categoryName = section.getAttribute('data-category') || '';
       const sectionTitle = section.querySelector('.section-title').textContent.toLowerCase();
 
-      if (
-        categoryName.includes(query) ||
-        sectionTitle.includes(query)
-      ) {
+      if (categoryName.includes(query) || sectionTitle.includes(query)) {
         section.style.display = 'block';
       } else {
         section.style.display = 'none';
@@ -2089,9 +2209,7 @@
 
   DOM.metalSelectors.forEach(button => {
     button.addEventListener('click', (e) => {
-      setMetalSystem(
-        e.target.getAttribute('data-metal')
-      );
+      setMetalSystem(e.target.getAttribute('data-metal'));
     });
   });
 
@@ -2100,27 +2218,58 @@
     if (structuralCard) executeAddition(structuralCard);
   });
 
+  // Action Button Listeners
   DOM.clearBtn.addEventListener('click', resetTrackerState);
   DOM.exportBtn.addEventListener('click', exportConfigurationData);
 
+  // New Single-Line Full View Logic with Dynamic Auto-Scaling
+  DOM.viewFullBtn.addEventListener('click', () => {
+    if (state.nodesList.length === 0) {
+      DOM.outputBox.textContent = "❌ Your bracelet is empty! Add some charms first.";
+      return;
+    }
+    
+    DOM.fullGrid.innerHTML = '';
+    DOM.fullGrid.style.transform = 'none'; // Reset scaling matrix values
+
+    state.nodesList.forEach(node => {
+      const clone = node.cloneNode(true);
+      DOM.fullGrid.appendChild(clone);
+    });
+
+    DOM.fullOverlay.classList.add('modal-active');
+
+    // Automatically measure and calculate the perfect shrink factor to fit the viewport width
+    setTimeout(() => {
+      const containerWidth = DOM.fullGrid.parentElement.clientWidth - 16; // Safely subtract wrapper paddings
+      const totalWidth = DOM.fullGrid.scrollWidth;
+
+      if (totalWidth > containerWidth) {
+        const structuralScaleRatio = containerWidth / totalWidth;
+        DOM.fullGrid.style.transform = `scale(${structuralScaleRatio})`;
+        DOM.fullGrid.style.transformOrigin = 'center center';
+      }
+    }, 60);
+  });
+
+  const closeFullPreview = () => {
+    DOM.fullOverlay.classList.remove('modal-active');
+  };
+
+  DOM.fullClose.addEventListener('click', closeFullPreview);
+  DOM.fullOverlay.addEventListener('click', (e) => {
+    if (e.target === DOM.fullOverlay) closeFullPreview();
+  });
+
   function setMetalSystem(metalSelection) {
     state.chosenMetal = metalSelection;
-
     DOM.metalAlert.style.display = 'none';
-
     DOM.metalSelectors.forEach(btn => {
-      btn.classList.toggle(
-        'active-choice',
-        btn.getAttribute('data-metal') === metalSelection
-      );
+      btn.classList.toggle('active-choice', btn.getAttribute('data-metal') === metalSelection);
     });
 
     document.querySelectorAll('.charm-source').forEach(card => {
-      const targetedSource =
-        metalSelection === 'SILVER'
-          ? card.dataset.imgSilver
-          : card.dataset.imgGold;
-
+      const targetedSource = metalSelection === 'SILVER' ? card.dataset.imgSilver : card.dataset.imgGold;
       if (targetedSource) {
         card.querySelector('img').src = targetedSource;
       }
@@ -2128,27 +2277,15 @@
   }
 
   function calculateNodeCost(datasetRef) {
-    if (state.chosenMetal === 'SILVER') {
-      return parseInt(datasetRef.costSilver, 10) || 0;
-    }
-
-    if (state.chosenMetal === 'GOLD') {
-      return parseInt(datasetRef.costGold, 10) || 0;
-    }
-
+    if (state.chosenMetal === 'SILVER') return parseInt(datasetRef.costSilver, 10) || 0;
+    if (state.chosenMetal === 'GOLD') return parseInt(datasetRef.costGold, 10) || 0;
     return 0;
   }
 
   function executeAddition(cardElement) {
     if (!state.chosenMetal) {
-      DOM.outputBox.textContent =
-        "❌ Please choose SILVER or GOLD first.";
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-
+      DOM.outputBox.textContent = "❌ Please choose SILVER or GOLD first.";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -2156,191 +2293,119 @@
 
     const id = cardElement.dataset.id;
     const preciseCost = calculateNodeCost(cardElement.dataset);
-
-    const sourceImage =
-      state.chosenMetal === 'SILVER'
-        ? cardElement.dataset.imgSilver
-        : cardElement.dataset.imgGold;
+    const sourceImage = state.chosenMetal === 'SILVER' ? cardElement.dataset.imgSilver : cardElement.dataset.imgGold;
 
     const linkNode = document.createElement('div');
-
     linkNode.className = 'link-node';
     linkNode.dataset.id = id;
     linkNode.dataset.calculatedValue = preciseCost;
 
-    const structuralImage =
-      document.createElement('img');
-
+    const structuralImage = document.createElement('img');
     structuralImage.src = sourceImage;
-
     linkNode.appendChild(structuralImage);
 
-    const deleteTrigger =
-      document.createElement('button');
-
+    const deleteTrigger = document.createElement('button');
     deleteTrigger.className = 'node-delete';
     deleteTrigger.innerHTML = '&times;';
-
     deleteTrigger.addEventListener('click', (e) => {
       e.stopPropagation();
       executeRemoval(linkNode, preciseCost);
     });
 
     linkNode.appendChild(deleteTrigger);
-
     DOM.track.appendChild(linkNode);
 
     state.nodesList.push(linkNode);
     state.activeTotalCost += preciseCost;
 
-   refreshDashboardDisplays();
+    refreshDashboardDisplays();
 
-clearTimeout(window.saveTimer);
+    clearTimeout(window.saveTimer);
+    window.saveTimer = setTimeout(() => { saveBracelet(); }, 250);
 
-window.saveTimer = setTimeout(() => {
-  saveBracelet();
-}, 250);
-
-    DOM.track.scrollTo({
-      left: DOM.track.scrollWidth,
-      behavior: 'smooth'
-    });
+    DOM.track.scrollTo({ left: DOM.track.scrollWidth, behavior: 'smooth' });
   }
 
   function executeRemoval(nodeElement, computationalCost) {
     DOM.track.removeChild(nodeElement);
-
-    state.nodesList =
-      state.nodesList.filter(
-        item => item !== nodeElement
-      );
-
+    state.nodesList = state.nodesList.filter(item => item !== nodeElement);
     state.activeTotalCost -= computationalCost;
 
     if (state.nodesList.length === 0) {
       DOM.placeholder.style.display = 'block';
     }
 
-   refreshDashboardDisplays();
+    refreshDashboardDisplays();
 
-clearTimeout(window.saveTimer);
-
-window.saveTimer = setTimeout(() => {
-  saveBracelet();
-}, 250);
+    clearTimeout(window.saveTimer);
+    window.saveTimer = setTimeout(() => { saveBracelet(); }, 250);
   }
 
   function refreshDashboardDisplays() {
-    DOM.countBox.textContent =
-      state.nodesList.length;
-
-    DOM.priceBox.textContent =
-      state.activeTotalCost;
+    DOM.countBox.textContent = state.nodesList.length;
+    DOM.priceBox.textContent = state.activeTotalCost;
   }
 
   function resetTrackerState() {
     DOM.track.innerHTML = '';
-
-    DOM.track.appendChild(
-      DOM.placeholder
-    );
-
+    DOM.track.appendChild(DOM.placeholder);
     DOM.placeholder.style.display = 'block';
-
     state.nodesList = [];
     state.activeTotalCost = 0;
-
     refreshDashboardDisplays();
-
     DOM.outputBox.textContent = "...";
-
     localStorage.removeItem(STORAGE_KEY);
   }
 
   function exportConfigurationData() {
     if (!state.chosenMetal) {
-      DOM.outputBox.textContent =
-        "❌ Please choose SILVER or GOLD first.";
+      DOM.outputBox.textContent = "❌ Please choose SILVER or GOLD first.";
       return;
     }
-
     if (state.nodesList.length === 0) {
-      DOM.outputBox.textContent =
-        "No charms selected.";
+      DOM.outputBox.textContent = "No charms selected.";
       return;
     }
 
-    const identificationPrefix =
-      state.chosenMetal === 'SILVER'
-        ? 'S'
-        : 'G';
+    const identificationPrefix = state.chosenMetal === 'SILVER' ? 'S' : 'G';
+    const compilationString = state.nodesList.map(node => `${identificationPrefix}${node.dataset.id}`).join('-');
 
-    const compilationString =
-      state.nodesList
-        .map(
-          node =>
-            `${identificationPrefix}${node.dataset.id}`
-        )
-        .join('-');
+    DOM.outputBox.textContent = compilationString;
 
-    DOM.outputBox.textContent =
-      compilationString;
-
-    if (
-      navigator.clipboard &&
-      navigator.clipboard.writeText
-    ) {
-      navigator.clipboard
-        .writeText(compilationString)
-        .then(() => {
-          DOM.outputBox.textContent =
-            "✅ Copied! DM it to us or paste it in your order google form.";
-        })
-        .catch(() => {
-          DOM.outputBox.textContent =
-            compilationString +
-            " (Please copy manually)";
-        });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(compilationString)
+        .then(() => { DOM.outputBox.textContent = "✅ Copied! DM it to us or paste it in your order google form."; })
+        .catch(() => { DOM.outputBox.textContent = compilationString + " (Please copy manually)"; });
     }
   }
 
   function restoreBracelet() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
 
-    if (!raw) return;
+      if (saved.chosenMetal) setMetalSystem(saved.chosenMetal);
 
-    const saved = JSON.parse(raw);
-
-    if (saved.chosenMetal) {
-      setMetalSystem(saved.chosenMetal);
-    }
-
-    if (
-      saved.charms &&
-      Array.isArray(saved.charms)
-    ) {
-      const charmMap = {};
-
-      document.querySelectorAll('.charm-source').forEach(card => {
-        charmMap[card.dataset.id] = card;
-      });
-
-      setTimeout(() => {
-        saved.charms.forEach(charm => {
-          const card = charmMap[charm.id];
-
-          if (card) {
-            executeAddition(card);
-          }
+      if (saved.charms && Array.isArray(saved.charms)) {
+        const charmMap = {};
+        document.querySelectorAll('.charm-source').forEach(card => {
+          charmMap[card.dataset.id] = card;
         });
-      }, 100);
+
+        setTimeout(() => {
+          saved.charms.forEach(charm => {
+            const card = charmMap[charm.id];
+            if (card) executeAddition(card);
+          });
+        }, 100);
+      }
+    } catch (e) {
+      console.log(e);
     }
-  } catch (e) {
-    console.log(e);
   }
-}
-/* ==========================================
+
+  /* ==========================================
      INTEGRATED DRAG & DROP WITH AUTO-SCROLL
      ========================================== */
   (() => {
@@ -2359,7 +2424,6 @@ window.saveTimer = setTimeout(() => {
       const targetNode = e.target.closest('.link-node');
       if (!targetNode || e.target.classList.contains('node-delete')) return;
 
-      // Single-action activation across Desktop + Touch Devices
       e.preventDefault();
       DOM.track.setPointerCapture(e.pointerId);
 
@@ -2435,11 +2499,9 @@ window.saveTimer = setTimeout(() => {
 
     function startAutoScroll() {
       if (!dragElement) return;
-      
       DOM.track.scrollLeft += scrollSpeed;
       cacheElementPositions();
       updateDOMArrangement();
-      
       animationFrameId = requestAnimationFrame(startAutoScroll);
     }
 
@@ -2485,7 +2547,6 @@ window.saveTimer = setTimeout(() => {
     function syncStateWithDOM() {
       const updatedNodes = Array.from(DOM.track.querySelectorAll('.link-node'));
       state.nodesList = updatedNodes;
-
       clearTimeout(window.saveTimer);
       window.saveTimer = setTimeout(() => { saveBracelet(); }, 250);
     }
