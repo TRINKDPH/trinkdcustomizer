@@ -813,7 +813,40 @@
   <div class="alert-banner" id="metalAlert">
     ⚠️ Please choose SILVER or GOLD first
   </div>
+<style>
+  /* --- Fixed Mobile Scrollbar & Spacing --- */
+  #assemblyTrack {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 4px !important;
+    
+    /* 1. This pushes the scrollbar lower down, away from the charms */
+    padding-bottom: 25px !important; 
+    
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
 
+  /* 2. Forces the scrollbar to be thick, visible, and easy to grab on mobile */
+  #assemblyTrack::-webkit-scrollbar {
+    height: 12px !important; 
+    display: block !important;
+  }
+
+  #assemblyTrack::-webkit-scrollbar-track {
+    background: #f0f0f0 !important;
+    border-radius: 10px !important;
+  }
+
+  #assemblyTrack::-webkit-scrollbar-thumb {
+    background: #a0a0a0 !important; /* Darker grey so it stands out */
+    border-radius: 10px !important;
+    border: 2px solid #f0f0f0 !important;
+  }
+</style>
   <section class="sticky-panel">
     <div class="bracelet-track" id="assemblyTrack">
       <div class="track-placeholder" id="placeholderMsg">Your bracelet is empty. Try to add charms!</div>
